@@ -594,11 +594,10 @@ def resolve_ticker(query: str) -> str:
     Resolves query to Yahoo Finance ticker.
     """
     query = query.strip()
-    if query.isupper() and len(query) <= 5:
-        return query
-        
+    
+    # Try Yahoo Finance search auto-suggest API first to resolve fuzzy/partial names
     url = f"https://query2.finance.yahoo.com/v1/finance/search?q={query}"
-    headers = {"User-Agent": "Mozilla/5.0"}
+    headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36"}
     try:
         response = requests.get(url, headers=headers, timeout=5)
         if response.status_code == 200:
@@ -608,8 +607,11 @@ def resolve_ticker(query: str) -> str:
                 for q in quotes:
                     if q.get("quoteType") == "EQUITY":
                         return q.get("symbol")
-    except Exception:
-        pass
+    except Exception as e:
+        print(f"Ticker resolution API failed for '{query}': {e}")
+        
+    if query.isupper() and len(query) <= 5:
+        return query
     return query.upper()
 
 def fetch_rss_news(ticker: str) -> List[str]:

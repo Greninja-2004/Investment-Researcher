@@ -800,9 +800,14 @@ export default function AnalyzePage() {
                 
                 <div className="divide-y divide-[rgba(0,0,0,0.05)]">
                   {result.peers.map((peer, idx) => (
-                    <div key={idx} className="flex justify-between items-center py-2.5 first:pt-0 last:pb-0">
+                    <div 
+                      key={idx} 
+                      onClick={() => router.push(`/analyze/${peer.ticker}`)}
+                      className="flex justify-between items-center py-2.5 px-2 -mx-2 rounded-md cursor-pointer hover:bg-[#F9FAFB] active:bg-[#F3F4F6] transition-colors first:pt-2.5 last:pb-2.5 group"
+                      title={`Analyze ${peer.name} (${peer.ticker})`}
+                    >
                       <div>
-                        <div className="text-[13px] font-medium text-[#1A1A1A]">{peer.name}</div>
+                        <div className="text-[13px] font-medium text-[#1A1A1A] group-hover:text-[#2563EB] transition-colors">{peer.name}</div>
                         <div className="text-[10px] font-mono text-[#9B9B9B]">{peer.ticker}</div>
                       </div>
                       <span className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
