@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  python-model:
+    build:
+      context: .
+      dockerfile: ./investment_model/Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - PORT=8000
+      - HOST=0.0.0.0
+    restart: always
+
+  nextjs-app:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+    depends_on:
+      - python-model
+    restart: always
