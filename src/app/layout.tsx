@@ -3,6 +3,7 @@ import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import Link from "next/link";
 import { Brain, Sparkles, TrendingUp } from "lucide-react";
+import { Analytics } from "@vercel/analytics/next";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -81,6 +82,7 @@ export default function RootLayout({
           <p>© 2026 AI Investment Agent. Designed for recruiting technical assignments.</p>
         </footer>
 
+        <Analytics />
       </body>
     </html>
   );
