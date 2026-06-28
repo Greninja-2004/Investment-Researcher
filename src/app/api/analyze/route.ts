@@ -1,5 +1,6 @@
 import { NextRequest } from "next/server";
-import yahooFinance from "yahoo-finance2";
+import YahooFinance from "yahoo-finance2";
+const yahooFinance = new YahooFinance();
 import { lookupTicker } from "@/lib/service/yahooFinance";
 
 export const runtime = "nodejs";
