@@ -1,6 +1,58 @@
 import { NextRequest } from "next/server";
+import yahooFinance from "yahoo-finance2";
+import { lookupTicker } from "@/lib/service/yahooFinance";
 
 export const runtime = "nodejs";
+
+async function prefetchYahooData(ticker: string) {
+  try {
+    const summary = await yahooFinance.quoteSummary(ticker, {
+      modules: ["summaryDetail", "price", "financialData", "defaultKeyStatistics", "summaryProfile"],
+    }) as any;
+
+    const fd = summary.financialData || {};
+    const ks = summary.defaultKeyStatistics || {};
+    const sd = summary.summaryDetail || {};
+    const sp = summary.summaryProfile || {};
+    const pr = summary.price || {};
+
+    const extractVal = (o: any) => {
+      if (o === undefined || o === null) return null;
+      if (typeof o === "object" && "raw" in o) return o.raw;
+      return o;
+    };
+
+    return {
+      symbol: ticker,
+      longName: pr.longName || pr.shortName || ticker,
+      marketCap: extractVal(sd.marketCap) || (extractVal(ks.sharesOutstanding) && extractVal(pr.regularMarketPrice) ? extractVal(ks.sharesOutstanding) * extractVal(pr.regularMarketPrice) : null),
+      trailingPE: extractVal(sd.trailingPE) || null,
+      forwardPE: extractVal(sd.forwardPE) || null,
+      priceToBook: extractVal(ks.priceToBook) || null,
+      regularMarketPrice: extractVal(pr.regularMarketPrice) || extractVal(fd.currentPrice) || null,
+      freeCashflow: extractVal(fd.freeCashflow) || null,
+      totalRevenue: extractVal(fd.totalRevenue) || null,
+      debtToEquity: extractVal(fd.debtToEquity) || null,
+      currentRatio: extractVal(fd.currentRatio) || null,
+      quickRatio: extractVal(fd.quickRatio) || null,
+      returnOnEquity: extractVal(fd.returnOnEquity) || null,
+      returnOnAssets: extractVal(fd.returnOnAssets) || null,
+      revenueGrowth: extractVal(fd.revenueGrowth) || null,
+      profitMargins: extractVal(fd.profitMargins) || null,
+      operatingMargins: extractVal(fd.operatingMargins) || extractVal(fd.operatingMargin) || null,
+      grossMargins: extractVal(fd.grossMargins) || extractVal(fd.grossMargin) || null,
+      website: sp.website || ks.website || null,
+      fullTimeEmployees: sp.fullTimeEmployees || ks.fullTimeEmployees || null,
+      sector: sp.sector || ks.sector || "Technology",
+      industry: sp.industry || ks.industry || "Consumer Electronics",
+      longBusinessSummary: sp.longBusinessSummary || ks.longBusinessSummary || "No business summary available.",
+      exchange: pr.exchangeName || pr.exchange || "NASDAQ",
+    };
+  } catch (err) {
+    console.error(`Error prefetching financials for ${ticker}:`, err);
+    return null;
+  }
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -15,6 +67,20 @@ export async function POST(req: NextRequest) {
       });
     }
 
+    // 1. Resolve ticker on the frontend using yahoo-finance2
+    let resolvedTicker = companyName;
+    try {
+      const resolved = await lookupTicker(companyName);
+      if (resolved && resolved.ticker) {
+        resolvedTicker = resolved.ticker;
+      }
+    } catch (err) {
+      console.error("Fuzzy ticker lookup failed:", err);
+    }
+
+    // 2. Prefetch Yahoo Finance data from Vercel's rotating IPs
+    const prefetchInfo = await prefetchYahooData(resolvedTicker);
+
     try {
       // Connect to hosted or local FastAPI Python server
       const modelServerUrl = process.env.MODEL_SERVER_URL || "http://localhost:8000";
@@ -24,8 +90,9 @@ export async function POST(req: NextRequest) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          company_name: companyName,
-          vector_store_id: vectorStoreId
+          company_name: resolvedTicker,
+          vector_store_id: vectorStoreId,
+          prefetch_info: prefetchInfo
         }),
       });
 

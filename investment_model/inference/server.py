@@ -456,6 +456,7 @@ def compile_analysis_result(ticker: str, info: dict, verdict: str, conviction: f
 class PredictRequest(BaseModel):
     company_name: str
     vector_store_id: Optional[str] = None
+    prefetch_info: Optional[Dict[str, Any]] = None
 
 class PredictResponse(BaseModel):
     verdict: str
@@ -819,21 +820,21 @@ async def predict(request: PredictRequest) -> PredictResponse:
     ticker = resolve_ticker(request.company_name)
     
     # 1. Fetch yfinance info
-    info = {}
-    try:
-        yf_ticker = yf.Ticker(ticker, session=yfinance_session)
-        info = yf_ticker.info
-        if not info or not isinstance(info, dict) or len(info) < 5:
-            raise ValueError("Empty or invalid info returned by yfinance")
-    except Exception as e:
-        print(f"Warning: yfinance fetch failed for {ticker}: {e}. Trying raw query2 fallback...")
-        info = fetch_financials_fallback(ticker)
+    info = request.prefetch_info or {}
+    yf_ticker_obj = None
+    if not info:
+        try:
+            yf_ticker_obj = yf.Ticker(ticker, session=yfinance_session)
+            info = yf_ticker_obj.info
+            if not info or not isinstance(info, dict) or len(info) < 5:
+                raise ValueError("Empty or invalid info returned by yfinance")
+        except Exception as e:
+            print(f"Warning: yfinance fetch failed for {ticker}: {e}. Trying raw query2 fallback...")
+            info = fetch_financials_fallback(ticker)
     
     # 2. Extract metrics
     metrics = {}
     for key in NUMERICAL_FEATURE_KEYS:
-        # Map camelCase to snake_case if needed
-        # Fallback fields
         if key == "freeCashflowYield":
             fcf = info.get("freeCashflow", 0.0)
             mcap = info.get("marketCap", 1.0)
@@ -857,10 +858,11 @@ async def predict(request: PredictRequest) -> PredictResponse:
     # 3. Fetch News RSS
     rss_news = fetch_rss_news(ticker)
     yf_news = []
-    try:
-        yf_news = [art["title"] for art in yf_ticker.news if "title" in art] if yf_ticker.news else []
-    except Exception as e:
-        print(f"Warning: yfinance news fetch failed for {ticker}: {e}")
+    if yf_ticker_obj is not None:
+        try:
+            yf_news = [art["title"] for art in yf_ticker_obj.news if "title" in art] if yf_ticker_obj.news else []
+        except Exception as e:
+            print(f"Warning: yfinance news fetch failed for {ticker}: {e}")
     news_headlines = list(set(rss_news + yf_news))[:12] # Deduplicate and limit to 12
     
     business_summary = info.get("longBusinessSummary", "No business summary available.")
@@ -939,19 +941,23 @@ async def predict_stream(request: PredictRequest):
         
         # Phase 2: Financials Research
         yield f"data: {json.dumps({'type': 'node_start', 'nodeName': 'researchFinancials'})}\n\n"
-        yield f"data: {json.dumps({'type': 'log', 'message': 'Fetching quarterly and annual financial statements via Yahoo Finance API...'})}\n\n"
         
-        info = {}
-        try:
-            yf_ticker = yf.Ticker(resolved, session=yfinance_session)
-            info = yf_ticker.info
-            if not info or not isinstance(info, dict) or len(info) < 5:
-                raise ValueError("Empty or invalid info returned by yfinance")
-        except Exception as e:
-            yield f"data: {json.dumps({'type': 'log', 'message': f'Warning: yfinance blocked ({e}). Accessing Yahoo Finance API directly...'})}\n\n"
-            info = fetch_financials_fallback(resolved)
-            if not info:
-                yield f"data: {json.dumps({'type': 'log', 'message': 'Warning: Direct API fallback returned no data. Using default valuation indicators.'})}\n\n"
+        info = request.prefetch_info or {}
+        yf_ticker_obj = None
+        if not info:
+            yield f"data: {json.dumps({'type': 'log', 'message': 'Fetching quarterly and annual financial statements via Yahoo Finance API...'})}\n\n"
+            try:
+                yf_ticker_obj = yf.Ticker(resolved, session=yfinance_session)
+                info = yf_ticker_obj.info
+                if not info or not isinstance(info, dict) or len(info) < 5:
+                    raise ValueError("Empty or invalid info returned by yfinance")
+            except Exception as e:
+                yield f"data: {json.dumps({'type': 'log', 'message': f'Warning: yfinance blocked ({e}). Accessing Yahoo Finance API directly...'})}\n\n"
+                info = fetch_financials_fallback(resolved)
+                if not info:
+                    yield f"data: {json.dumps({'type': 'log', 'message': 'Warning: Direct API fallback returned no data. Using default valuation indicators.'})}\n\n"
+        else:
+            yield f"data: {json.dumps({'type': 'log', 'message': 'Loaded pre-fetched financial indicators from browser client.'})}\n\n"
         
         metrics = {}
         for key in NUMERICAL_FEATURE_KEYS:
@@ -987,10 +993,11 @@ async def predict_stream(request: PredictRequest):
         
         rss_news = fetch_rss_news(resolved)
         yf_news = []
-        try:
-            yf_news = [art["title"] for art in yf_ticker.news if "title" in art] if yf_ticker.news else []
-        except Exception as e:
-            yield f"data: {json.dumps({'type': 'log', 'message': f'Warning: Failed to fetch Yahoo Finance news ({e}). Using RSS news only.'})}\n\n"
+        if yf_ticker_obj is not None:
+            try:
+                yf_news = [art["title"] for art in yf_ticker_obj.news if "title" in art] if yf_ticker_obj.news else []
+            except Exception as e:
+                yield f"data: {json.dumps({'type': 'log', 'message': f'Warning: Failed to fetch Yahoo Finance news ({e}). Using RSS news only.'})}\n\n"
         news_headlines = list(set(rss_news + yf_news))[:12]
         
         yield f"data: {json.dumps({'type': 'log', 'message': f'Fetched {len(news_headlines)} headlines from RSS and Yahoo Finance.'})}\n\n"
