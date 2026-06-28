@@ -886,16 +886,23 @@ async def predict_stream(request: PredictRequest):
         sector = info.get("sector", "Technology")
         industry = info.get("industry", "Consumer Electronics")
         
-        verdict, confidence, probabilities, num_drivers, text_signals = run_local_inference(
-            resolved, metrics, news_headlines, business_summary, sector
-        )
-        
-        reasoning, bull_case, bear_case, key_risks = synthesize_reasoning_and_cases(
-            verdict, confidence, resolved, sector, metrics, num_drivers, text_signals
-        )
-        
-        # Compile the final AnalysisResult object
-        analysis_result = compile_analysis_result(resolved, info, verdict, confidence, num_drivers, metrics)
+        try:
+            verdict, confidence, probabilities, num_drivers, text_signals = run_local_inference(
+                resolved, metrics, news_headlines, business_summary, sector
+            )
+            
+            reasoning, bull_case, bear_case, key_risks = synthesize_reasoning_and_cases(
+                verdict, confidence, resolved, sector, metrics, num_drivers, text_signals
+            )
+            
+            # Compile the final AnalysisResult object
+            analysis_result = compile_analysis_result(resolved, info, verdict, confidence, num_drivers, metrics)
+        except Exception as e:
+            import traceback
+            error_details = traceback.format_exc()
+            print(f"Error in Phase 6 local inference: {error_details}")
+            yield f"data: {json.dumps({'type': 'error', 'error': f'Inference engine failed: {e}'})}\n\n"
+            return
         
         competitor_data = {
             "peers": [p["ticker"] for p in analysis_result["peers"]],
