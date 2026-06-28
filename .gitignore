@@ -51,4 +51,6 @@ investment_model/data/raw/*
 !investment_model/data/raw/.gitkeep
 investment_model/data/processed/*
 !investment_model/data/processed/.gitkeep
+!investment_model/data/processed/tokenizer.json
+!investment_model/data/processed/scaling_params.json
 
