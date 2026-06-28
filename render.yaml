@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: investment-research-backend
+    env: docker
+    dockerfilePath: ./investment_model/Dockerfile
+    dockerContext: .
+    plan: free
+    envVars:
+      - key: PORT
+        value: 8000
