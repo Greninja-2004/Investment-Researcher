@@ -517,6 +517,78 @@ def load_model_assets():
     
     print(f"Model assets successfully cached on device: {device}")
 
+def fetch_financials_fallback(ticker: str) -> dict:
+    """
+    Directly query Yahoo Finance JSON endpoints as a fallback when yfinance is blocked.
+    """
+    info = {}
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36"
+    }
+    
+    # 1. Fetch from /v7/finance/quote (highly reliable for basic quotes, exchange, and mcap)
+    try:
+        url = f"https://query2.finance.yahoo.com/v7/finance/quote?symbols={ticker}"
+        response = requests.get(url, headers=headers, timeout=5)
+        if response.status_code == 200:
+            data = response.json()
+            result = data.get("quoteResponse", {}).get("result", [])
+            if result:
+                quote = result[0]
+                info.update({
+                    "symbol": quote.get("symbol"),
+                    "longName": quote.get("longName", quote.get("shortName", ticker)),
+                    "marketCap": quote.get("marketCap"),
+                    "trailingPE": quote.get("trailingPE"),
+                    "forwardPE": quote.get("forwardPE"),
+                    "priceToBook": quote.get("priceToBook"),
+                    "regularMarketPrice": quote.get("regularMarketPrice"),
+                    "exchange": quote.get("fullExchangeName", quote.get("exchange", "NASDAQ")),
+                })
+    except Exception as e:
+        print(f"Fallback quote API failed: {e}")
+
+    # 2. Fetch from /v10/finance/quoteSummary (for defaultKeyStatistics, financialData, summaryDetail)
+    try:
+        url = f"https://query2.finance.yahoo.com/v10/finance/quoteSummary/{ticker}?modules=financialData,defaultKeyStatistics,summaryDetail"
+        response = requests.get(url, headers=headers, timeout=5)
+        if response.status_code == 200:
+            data = response.json()
+            summary = data.get("quoteSummary", {}).get("result", [])
+            if summary:
+                modules = summary[0]
+                fd = modules.get("financialData", {})
+                ks = modules.get("defaultKeyStatistics", {})
+                sd = modules.get("summaryDetail", {})
+                
+                def get_raw(d, key):
+                    val = d.get(key)
+                    if isinstance(val, dict):
+                        return val.get("raw")
+                    return val
+
+                info.update({
+                    "freeCashflow": get_raw(fd, "freeCashflow"),
+                    "totalRevenue": get_raw(fd, "totalRevenue"),
+                    "debtToEquity": get_raw(fd, "debtToEquity"),
+                    "currentRatio": get_raw(fd, "currentRatio"),
+                    "returnOnEquity": get_raw(fd, "returnOnEquity"),
+                    "returnOnAssets": get_raw(fd, "returnOnAssets"),
+                    "revenueGrowth": get_raw(fd, "revenueGrowth"),
+                    "profitMargins": get_raw(fd, "profitMargins"),
+                    "operatingMargins": get_raw(fd, "operatingMargins"),
+                    "grossMargins": get_raw(fd, "grossMargins"),
+                    "website": ks.get("website"),
+                    "fullTimeEmployees": get_raw(ks, "fullTimeEmployees"),
+                    "sector": sd.get("sector", ks.get("sector")),
+                    "industry": sd.get("industry", ks.get("industry")),
+                    "longBusinessSummary": ks.get("longBusinessSummary", sd.get("longBusinessSummary")),
+                })
+    except Exception as e:
+        print(f"Fallback summary API failed: {e}")
+        
+    return info
+
 def resolve_ticker(query: str) -> str:
     """
     Resolves query to Yahoo Finance ticker.
@@ -700,9 +772,10 @@ async def predict(request: PredictRequest) -> PredictResponse:
         yf_ticker = yf.Ticker(ticker, session=yfinance_session)
         info = yf_ticker.info
         if not info or not isinstance(info, dict) or len(info) < 5:
-            info = {}
+            raise ValueError("Empty or invalid info returned by yfinance")
     except Exception as e:
-        print(f"Warning: yfinance fetch failed for {ticker}: {e}")
+        print(f"Warning: yfinance fetch failed for {ticker}: {e}. Trying raw query2 fallback...")
+        info = fetch_financials_fallback(ticker)
     
     # 2. Extract metrics
     metrics = {}
@@ -821,9 +894,12 @@ async def predict_stream(request: PredictRequest):
             yf_ticker = yf.Ticker(resolved, session=yfinance_session)
             info = yf_ticker.info
             if not info or not isinstance(info, dict) or len(info) < 5:
-                info = {}
+                raise ValueError("Empty or invalid info returned by yfinance")
         except Exception as e:
-            yield f"data: {json.dumps({'type': 'log', 'message': f'Warning: Failed to fetch live financials from Yahoo Finance ({e}). Using robust default valuation indicators.'})}\n\n"
+            yield f"data: {json.dumps({'type': 'log', 'message': f'Warning: yfinance blocked ({e}). Accessing Yahoo Finance API directly...'})}\n\n"
+            info = fetch_financials_fallback(resolved)
+            if not info:
+                yield f"data: {json.dumps({'type': 'log', 'message': 'Warning: Direct API fallback returned no data. Using default valuation indicators.'})}\n\n"
         
         metrics = {}
         for key in NUMERICAL_FEATURE_KEYS:
