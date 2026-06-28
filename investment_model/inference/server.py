@@ -17,6 +17,26 @@ from investment_model.model.tokenizer import SimpleBPETokenizer
 from investment_model.model.investment_model import InvestmentModel
 from investment_model.data_pipeline.build_features import NUMERICAL_FEATURE_KEYS
 
+from requests.adapters import HTTPAdapter
+
+class TimeoutHTTPAdapter(HTTPAdapter):
+    def __init__(self, *args, **kwargs):
+        self.timeout = kwargs.pop("timeout", 5)
+        super().__init__(*args, **kwargs)
+
+    def send(self, request, **kwargs):
+        kwargs["timeout"] = self.timeout
+        return super().send(request, **kwargs)
+
+# Create a robust session with user-agent and timeout to prevent hanging on cloud IPs
+yfinance_session = requests.Session()
+yfinance_session.headers.update({
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36"
+})
+adapter = TimeoutHTTPAdapter(timeout=5)
+yfinance_session.mount("https://", adapter)
+yfinance_session.mount("http://", adapter)
+
 app = FastAPI(title="Investment Research Model API")
 
 # Global Cache for Model Assets
@@ -675,8 +695,14 @@ async def predict(request: PredictRequest) -> PredictResponse:
     ticker = resolve_ticker(request.company_name)
     
     # 1. Fetch yfinance info
-    yf_ticker = yf.Ticker(ticker)
-    info = yf_ticker.info
+    info = {}
+    try:
+        yf_ticker = yf.Ticker(ticker, session=yfinance_session)
+        info = yf_ticker.info
+        if not info or not isinstance(info, dict) or len(info) < 5:
+            info = {}
+    except Exception as e:
+        print(f"Warning: yfinance fetch failed for {ticker}: {e}")
     
     # 2. Extract metrics
     metrics = {}
@@ -705,7 +731,11 @@ async def predict(request: PredictRequest) -> PredictResponse:
             
     # 3. Fetch News RSS
     rss_news = fetch_rss_news(ticker)
-    yf_news = [art["title"] for art in yf_ticker.news if "title" in art] if yf_ticker.news else []
+    yf_news = []
+    try:
+        yf_news = [art["title"] for art in yf_ticker.news if "title" in art] if yf_ticker.news else []
+    except Exception as e:
+        print(f"Warning: yfinance news fetch failed for {ticker}: {e}")
     news_headlines = list(set(rss_news + yf_news))[:12] # Deduplicate and limit to 12
     
     business_summary = info.get("longBusinessSummary", "No business summary available.")
@@ -786,8 +816,14 @@ async def predict_stream(request: PredictRequest):
         yield f"data: {json.dumps({'type': 'node_start', 'nodeName': 'researchFinancials'})}\n\n"
         yield f"data: {json.dumps({'type': 'log', 'message': 'Fetching quarterly and annual financial statements via Yahoo Finance API...'})}\n\n"
         
-        yf_ticker = yf.Ticker(resolved)
-        info = yf_ticker.info
+        info = {}
+        try:
+            yf_ticker = yf.Ticker(resolved, session=yfinance_session)
+            info = yf_ticker.info
+            if not info or not isinstance(info, dict) or len(info) < 5:
+                info = {}
+        except Exception as e:
+            yield f"data: {json.dumps({'type': 'log', 'message': f'Warning: Failed to fetch live financials from Yahoo Finance ({e}). Using robust default valuation indicators.'})}\n\n"
         
         metrics = {}
         for key in NUMERICAL_FEATURE_KEYS:
@@ -822,7 +858,11 @@ async def predict_stream(request: PredictRequest):
         yield f"data: {json.dumps({'type': 'log', 'message': 'Fetching Google News and Yahoo Finance RSS feeds for market sentiment...'})}\n\n"
         
         rss_news = fetch_rss_news(resolved)
-        yf_news = [art["title"] for art in yf_ticker.news if "title" in art] if yf_ticker.news else []
+        yf_news = []
+        try:
+            yf_news = [art["title"] for art in yf_ticker.news if "title" in art] if yf_ticker.news else []
+        except Exception as e:
+            yield f"data: {json.dumps({'type': 'log', 'message': f'Warning: Failed to fetch Yahoo Finance news ({e}). Using RSS news only.'})}\n\n"
         news_headlines = list(set(rss_news + yf_news))[:12]
         
         yield f"data: {json.dumps({'type': 'log', 'message': f'Fetched {len(news_headlines)} headlines from RSS and Yahoo Finance.'})}\n\n"
