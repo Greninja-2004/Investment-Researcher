@@ -1,9 +1,12 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --font-serif: "Instrument Serif", Georgia, serif;
   --font-instrument-serif: "Instrument Serif", Georgia, serif;
-  --font-sans: "Inter", system-ui, sans-serif;
+  --font-sans: var(--font-inter), "Inter", system-ui, sans-serif;
+  --font-space-grotesk: var(--font-space-grotesk), "Space Grotesk", sans-serif;
   --color-background: var(--bg-0);
   --color-foreground: var(--text-100);
 
@@ -11,6 +14,7 @@
   --animate-fade-slide-in-2: fadeSlideIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards 200ms;
   --animate-fade-slide-in-3: fadeSlideIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards 300ms;
   --animate-fade-slide-in-4: fadeSlideIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards 400ms;
+  --animate-marquee: marquee 35s linear infinite;
 
   @keyframes fadeSlideIn {
     from {
@@ -20,6 +24,15 @@
     to {
       opacity: 1;
       transform: translateY(0);
+    }
+  }
+
+  @keyframes marquee {
+    0% {
+      transform: translateX(0%);
+    }
+    100% {
+      transform: translateX(-50%);
     }
   }
 }
@@ -41,6 +54,12 @@
   --card-border: rgba(63, 63, 70, 0.4);
   --accent-emerald: #10b981;
   --accent-rose: #f43f5e;
+  
+  --grid-line: rgba(99, 102, 241, 0.04);
+}
+
+.dark {
+  --grid-line: rgba(99, 102, 241, 0.07);
 }
 
 body {
@@ -132,4 +151,39 @@ body {
 
 .pulse-ring-active {
   animation: pulse-ring 2s infinite;
+}
+
+/* Custom Grid Overlay */
+.grid-overlay {
+  background-image: 
+    linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* Featured Card Glow */
+.glow-indigo {
+  box-shadow: 0 0 20px -5px rgba(99, 102, 241, 0.1), 0 0 10px -8px rgba(99, 102, 241, 0.05);
+  border-color: rgba(99, 102, 241, 0.2) !important;
+}
+
+.dark .glow-indigo {
+  box-shadow: 0 0 25px -5px rgba(99, 102, 241, 0.25), 0 0 15px -8px rgba(99, 102, 241, 0.2);
+  border-color: rgba(99, 102, 241, 0.35) !important;
+}
+
+/* Indigo Pulse Dot */
+@keyframes pulse-indigo {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.4;
+    transform: scale(0.85);
+  }
+}
+
+.pulse-indigo-dot {
+  animation: pulse-indigo 2s infinite ease-in-out;
 }

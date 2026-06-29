@@ -56,14 +56,14 @@ export default function RecentAnalyses({ onSelect, refreshTrigger = 0 }: RecentA
 
   return (
     <div className="w-full max-w-4xl mx-auto space-y-4">
-      <div className="flex items-center justify-between border-b border-[rgba(0,0,0,0.07)] pb-2">
-        <h4 className="text-xs font-semibold text-[#6B6B6B] uppercase tracking-wider flex items-center gap-1.5">
+      <div className="flex items-center justify-between border-b border-white/[0.06] pb-2">
+        <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-1.5 font-space-grotesk">
           <History className="w-3.5 h-3.5" />
           <span>Recent Analysis History</span>
         </h4>
         <button
           onClick={clearHistory}
-          className="text-[10px] font-semibold text-rose-600 hover:text-rose-700 flex items-center gap-1 cursor-pointer transition"
+          className="text-[10px] font-semibold text-rose-450 hover:text-rose-400 flex items-center gap-1 cursor-pointer transition font-mono"
         >
           <Trash2 className="w-3 h-3" />
           <span>Clear History</span>
@@ -84,35 +84,35 @@ export default function RecentAnalyses({ onSelect, refreshTrigger = 0 }: RecentA
             <div
               key={idx}
               onClick={() => onSelect(item)}
-              className="bg-white border border-[rgba(0,0,0,0.07)] hover:border-slate-300 rounded-[12px] p-5 shadow-sm transition duration-150 cursor-pointer flex flex-col justify-between group relative overflow-hidden"
+              className="bg-white/[0.02] border border-white/[0.06] hover:border-indigo-500/30 hover:bg-white/[0.04] rounded-xl p-5 shadow-sm transition duration-150 cursor-pointer flex flex-col justify-between group relative overflow-hidden"
             >
               <div className="space-y-1.5 relative z-10">
                 <div className="flex justify-between items-start gap-2">
-                  <span className="text-[9px] font-mono text-[#9B9B9B]">{dateStr}</span>
-                  <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border uppercase ${
+                  <span className="text-[9px] font-mono text-slate-500">{dateStr}</span>
+                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded border uppercase font-space-grotesk ${
                     isInvest 
-                      ? "bg-[#EAF3DE] border-[#EAF3DE] text-[#3B6D11]" 
+                      ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-450" 
                       : item.verdict === "PASS"
-                      ? "bg-[#FCEBEB] border-[#FCEBEB] text-[#A32D2D]"
-                      : "bg-[#FAEEDA] border-[#FAEEDA] text-[#633806]"
+                      ? "bg-rose-500/10 border-rose-500/20 text-rose-450"
+                      : "bg-amber-500/10 border-amber-500/20 text-amber-450"
                   }`}>
                     {item.verdict}
                   </span>
                 </div>
                 
-                <h5 className="text-[15px] font-medium text-[#1A1A1A] group-hover:text-violet-600 transition line-clamp-1">
+                <h5 className="text-[15px] font-bold text-white group-hover:text-indigo-400 transition line-clamp-1 font-space-grotesk">
                   {item.companyName}
                 </h5>
-                <p className="text-[10px] font-mono text-[#9B9B9B]">
-                  {item.ticker ? `Ticker: ${item.ticker}` : "Private Entity"} • Confidence: {item.confidence}%
+                <p className="text-[10px] font-mono text-slate-400">
+                  {item.ticker ? `Ticker: ${item.ticker}` : "Private Entity"} • Conviction: {item.confidence}%
                 </p>
               </div>
 
-              <div className="mt-4 flex items-center justify-between border-t border-[rgba(0,0,0,0.05)] pt-3 relative z-10">
-                <span className="text-[10px] text-[#6B6B6B] group-hover:text-[#1A1A1A] transition">
+              <div className="mt-4 flex items-center justify-between border-t border-white/[0.04] pt-3 relative z-10">
+                <span className="text-[10px] text-slate-400 group-hover:text-white transition">
                   Load Analysis Results
                 </span>
-                <ArrowRight className="w-3.5 h-3.5 text-[#9B9B9B] group-hover:text-[#1A1A1A] group-hover:translate-x-0.5 transition duration-150" />
+                <ArrowRight className="w-3.5 h-3.5 text-slate-500 group-hover:text-white group-hover:translate-x-0.5 transition duration-150" />
               </div>
             </div>
           );

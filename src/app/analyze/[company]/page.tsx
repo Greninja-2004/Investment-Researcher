@@ -480,15 +480,15 @@ export default function AnalyzePage() {
     }
   };
 
-  return (
-    <div className="min-h-screen bg-[#F8F8F6] text-[#1A1A1A] w-full font-sans select-text pb-16">
+   return (
+    <div className="min-h-screen bg-[#F8F8F6] dark:bg-[#0a0b0f] text-[#1A1A1A] dark:text-slate-100 w-full font-sans select-text pb-16 transition-colors duration-300">
       <div className="max-w-4xl mx-auto px-4 py-8 space-y-[14px]">
         
         {/* SECTION 1 — TOP BAR */}
         <div className="flex items-center justify-between pb-2">
           <button
             onClick={handleBack}
-            className="flex items-center gap-1 text-xs font-medium text-[#6B6B6B] hover:text-[#1A1A1A] transition cursor-pointer"
+            className="flex items-center gap-1 text-xs font-semibold text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition cursor-pointer"
           >
             <ChevronLeft className="w-4 h-4" />
             <span>Dashboard</span>
@@ -497,7 +497,7 @@ export default function AnalyzePage() {
           {complete && (
             <button
               onClick={runAnalysis}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[rgba(0,0,0,0.15)] hover:bg-[#F0F0EE] text-xs font-medium text-[#1A1A1A] transition cursor-pointer"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-white/10 hover:bg-slate-100 dark:hover:bg-white/5 text-xs font-semibold text-[#1A1A1A] dark:text-white bg-white/50 dark:bg-white/[0.02] transition cursor-pointer"
             >
               <RefreshCw className="w-3 h-3" />
               <span>Re-run analysis</span>
@@ -508,10 +508,10 @@ export default function AnalyzePage() {
         {/* LOADING PROGRESS PIPELINE VIEW */}
         {loading && !error && (
           <div className="space-y-4 py-4 animate-fade-in">
-            <div className="bg-white border border-[rgba(0,0,0,0.07)] px-4 py-3.5 rounded-[12px] text-center max-w-md mx-auto text-xs text-[#6B6B6B] font-mono space-y-1.5 shadow-sm">
-              <div>Researching: <strong className="text-[#1A1A1A]">{companyName}</strong></div>
+            <div className="bg-white dark:bg-white/[0.02] border border-slate-200/60 dark:border-white/[0.06] px-4 py-3.5 rounded-[12px] text-center max-w-md mx-auto text-xs text-slate-600 dark:text-slate-400 font-mono space-y-1.5 shadow-sm dark:shadow-none">
+              <div>Researching: <strong className="text-[#1A1A1A] dark:text-white font-space-grotesk">{companyName}</strong></div>
               {fileName && (
-                <div className="text-[10px] text-emerald-600 font-bold">RAG Active: {fileName}</div>
+                <div className="text-[10px] text-emerald-650 dark:text-emerald-400 font-bold">RAG Active: {fileName}</div>
               )}
             </div>
             
@@ -527,24 +527,28 @@ export default function AnalyzePage() {
           </div>
         )}
 
-        {/* ERROR CARD VIEW */}
+        {/* ERROR VIEW */}
         {error && (
-          <div className="max-w-md mx-auto w-full bg-white border border-[rgba(0,0,0,0.07)] rounded-[12px] p-8 text-center space-y-6 shadow-sm mt-8 animate-fade-in">
-            <ShieldAlert className="w-12 h-12 text-[#E24B4A] mx-auto" />
+          <div className="max-w-md mx-auto w-full bg-white dark:bg-white/[0.02] border border-slate-200/60 dark:border-white/[0.06] rounded-[12px] p-8 text-center space-y-6 shadow-sm dark:shadow-none mt-8 animate-fade-in text-slate-900 dark:text-white">
             <div className="space-y-2">
-              <h3 className="text-lg font-medium text-[#1A1A1A]">Research interrupted</h3>
-              <p className="text-xs text-[#6B6B6B] leading-relaxed">{error}</p>
+              <div className="p-3 bg-rose-50 dark:bg-rose-500/10 border border-rose-100 dark:border-rose-500/20 text-rose-600 dark:text-rose-400 rounded-xl w-fit mx-auto">
+                <ShieldAlert className="w-6 h-6" />
+              </div>
+              <h3 className="text-base font-bold font-space-grotesk">Analysis Interrupted</h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed max-w-xs mx-auto">
+                {error}
+              </p>
             </div>
             <div className="flex gap-3">
               <button
                 onClick={handleBack}
-                className="flex-1 bg-white border border-[rgba(0,0,0,0.15)] hover:bg-[#F0F0EE] text-[#1A1A1A] py-2.5 rounded-lg transition text-xs font-medium cursor-pointer"
+                className="flex-1 bg-white dark:bg-white/[0.02] border border-slate-200 dark:border-white/10 hover:bg-slate-100 dark:hover:bg-white/5 text-[#1A1A1A] dark:text-white py-2.5 rounded-lg transition text-xs font-semibold cursor-pointer"
               >
-                Return Home
+                Back to home
               </button>
               <button
                 onClick={runAnalysis}
-                className="flex-1 bg-[#1A1A1A] text-white hover:bg-black py-2.5 rounded-lg transition text-xs font-medium cursor-pointer"
+                className="flex-1 bg-[#6366f1] text-white hover:bg-[#5558e0] py-2.5 rounded-lg transition text-xs font-semibold cursor-pointer"
               >
                 Retry Analysis
               </button>
@@ -557,9 +561,9 @@ export default function AnalyzePage() {
           <div className="space-y-[14px] animate-fade-in">
             
             {/* SECTION 2 — HERO CARD */}
-            <div className="bg-white border border-[rgba(0,0,0,0.07)] rounded-[12px] px-6 py-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-sm">
+            <div className="bg-white dark:bg-white/[0.02] border border-slate-200/60 dark:border-white/[0.06] rounded-[12px] px-6 py-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-sm dark:shadow-none transition-colors duration-300">
               <div className="space-y-1.5 flex-1">
-                <div className="text-[10px] font-semibold text-[#9B9B9B] uppercase tracking-wider">
+                <div className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider font-mono">
                   {result.ticker} · Equity · {result.country}
                 </div>
                 <div className="flex items-center gap-3">
@@ -567,7 +571,7 @@ export default function AnalyzePage() {
                     <img 
                       src={state.companyData.logo} 
                       alt={`${result.companyName} Logo`} 
-                      className="w-8 h-8 rounded-lg object-contain bg-white p-1 border border-[rgba(0,0,0,0.07)]"
+                      className="w-8 h-8 rounded-lg object-contain bg-white p-1 border border-slate-200 dark:border-white/10"
                       onError={(e) => {
                         const img = e.currentTarget;
                         if (img.src.includes("clearbit.com")) {
@@ -582,39 +586,39 @@ export default function AnalyzePage() {
                       }}
                     />
                   )}
-                  <h2 className="text-[28px] font-medium text-[#1A1A1A] leading-tight font-sans">
+                  <h2 className="text-[28px] font-bold text-slate-900 dark:text-white leading-tight font-space-grotesk">
                     {result.companyName}
                   </h2>
                 </div>
-                <div className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-normal bg-[#F0F0EE] text-[#6B6B6B] mt-1.5">
+                <div className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-100 dark:bg-white/[0.05] text-slate-600 dark:text-slate-400 mt-1.5">
                   {result.sector}{state?.companyData?.industry ? ` · ${state.companyData.industry}` : ""}
                 </div>
                 
                 {/* Truncated Company Business Summary in Hero */}
                 {result.description && (
-                  <div className="mt-4 pt-3 border-t border-[rgba(0,0,0,0.05)] max-w-2xl">
+                  <div className="mt-4 pt-3 border-t border-slate-150 dark:border-white/[0.04] max-w-2xl text-slate-600 dark:text-slate-400 text-xs">
                     <TruncatedText text={result.description} maxLines={3} />
                   </div>
                 )}
               </div>
               
-              <div className="text-left md:text-right flex flex-col items-start md:items-end flex-shrink-0 self-stretch justify-between md:justify-center border-t md:border-t-0 border-[rgba(0,0,0,0.05)] pt-4 md:pt-0">
+              <div className="text-left md:text-right flex flex-col items-start md:items-end flex-shrink-0 self-stretch justify-between md:justify-center border-t md:border-t-0 border-slate-150 dark:border-white/[0.04] pt-4 md:pt-0">
                 <div>
-                  <span className={`inline-block px-4 py-1.5 rounded-full text-sm font-semibold tracking-wider ${
+                  <span className={`inline-block px-4 py-1.5 rounded-full text-sm font-bold tracking-wider font-space-grotesk ${
                     result.verdict === "INVEST" 
-                      ? "bg-[#EAF3DE] text-[#3B6D11]" 
+                      ? "bg-[#EAF3DE] text-[#3B6D11] dark:bg-emerald-500/10 dark:text-emerald-450 dark:border dark:border-emerald-500/20" 
                       : result.verdict === "PASS"
-                      ? "bg-[#FCEBEB] text-[#A32D2D]"
-                      : "bg-[#FAEEDA] text-[#633806]"
+                      ? "bg-[#FCEBEB] text-[#A32D2D] dark:bg-rose-500/10 dark:text-rose-455 dark:border dark:border-rose-500/20"
+                      : "bg-[#FAEEDA] text-[#633806] dark:bg-amber-500/10 dark:text-amber-455 dark:border dark:border-amber-500/20"
                   }`}>
                     {result.verdict}
                   </span>
                 </div>
-                <div className="text-[11px] text-[#9B9B9B] mt-2 font-sans">Model conviction</div>
-                <div className="text-[32px] font-medium text-[#1A1A1A] leading-none mt-0.5">
+                <div className="text-[11px] text-slate-400 dark:text-slate-500 mt-2 font-sans">Model conviction</div>
+                <div className="text-[32px] font-bold text-slate-900 dark:text-white leading-none mt-0.5 font-space-grotesk">
                   {result.conviction}%
                 </div>
-                <div className="text-[11px] text-[#6B6B6B] mt-1">
+                <div className="text-[11px] text-slate-550 dark:text-slate-400 mt-1">
                   {result.conviction < 40 
                     ? "Low — insufficient signal" 
                     : result.conviction > 65 
@@ -623,14 +627,14 @@ export default function AnalyzePage() {
                 </div>
                 
                 {/* 5px Conviction track bar */}
-                <div className="h-[5px] w-28 bg-[#F0F0EE] rounded-full overflow-hidden mt-2.5">
+                <div className="h-[5px] w-28 bg-slate-100 dark:bg-white/[0.08] rounded-full overflow-hidden mt-2.5">
                   <div 
                     className={`h-full rounded-full transition-all duration-1000 ${
                       result.verdict === "INVEST" 
-                        ? "bg-[#3B6D11]" 
+                        ? "bg-emerald-500" 
                         : result.verdict === "PASS"
-                        ? "bg-[#A32D2D]" 
-                        : "bg-amber-500"
+                        ? "bg-rose-500" 
+                        : "bg-amber-550"
                     }`}
                     style={{ width: `${result.conviction}%` }}
                   />
@@ -642,24 +646,24 @@ export default function AnalyzePage() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-[14px]">
               
               {/* Market Cap */}
-              <div className="bg-white border border-[rgba(0,0,0,0.07)] rounded-[12px] px-6 py-4 shadow-sm flex flex-col justify-between">
-                <span className="text-[11px] font-medium text-[#9B9B9B]">Market Cap</span>
-                <div className="text-[18px] font-medium text-[#1A1A1A] py-1.5">
+              <div className="bg-white dark:bg-white/[0.02] border border-slate-200/60 dark:border-white/[0.06] rounded-[12px] px-6 py-4 shadow-sm dark:shadow-none flex flex-col justify-between">
+                <span className="text-[11px] font-medium text-slate-400 dark:text-slate-500">Market Cap</span>
+                <div className="text-[18px] font-bold text-[#1A1A1A] dark:text-white py-1.5 font-space-grotesk">
                   {formatMarketCap(result.marketCap, result.ticker)}
                 </div>
-                <span className="text-[11px] text-[#6B6B6B]">Total equity valuation</span>
+                <span className="text-[11px] text-slate-500 dark:text-slate-450">Total equity valuation</span>
               </div>
               
               {/* Short Ratio */}
               {(() => {
                 const isSuspicious = result.shortRatio === 0 || result.shortRatio > 10.0;
                 return (
-                  <div className="bg-white border border-[rgba(0,0,0,0.07)] rounded-[12px] px-6 py-4 shadow-sm flex flex-col justify-between">
-                    <span className="text-[11px] font-medium text-[#9B9B9B]">Short Ratio</span>
-                    <div className={`text-[18px] font-medium py-1.5 ${isSuspicious ? "text-[#E24B4A]" : "text-[#1A1A1A]"}`}>
+                  <div className="bg-white dark:bg-white/[0.02] border border-slate-200/60 dark:border-white/[0.06] rounded-[12px] px-6 py-4 shadow-sm dark:shadow-none flex flex-col justify-between">
+                    <span className="text-[11px] font-medium text-slate-400 dark:text-slate-500">Short Ratio</span>
+                    <div className={`text-[18px] font-bold py-1.5 font-space-grotesk ${isSuspicious ? "text-rose-600 dark:text-rose-450" : "text-[#1A1A1A] dark:text-white"}`}>
                       {result.shortRatio.toFixed(2)}
                     </div>
-                    <span className="text-[11px] text-[#6B6B6B]">
+                    <span className="text-[11px] text-slate-500 dark:text-slate-450">
                       {isSuspicious ? "Suspiciously low/missing data" : "Days to cover short positions"}
                     </span>
                   </div>
@@ -667,23 +671,23 @@ export default function AnalyzePage() {
               })()}
               
               {/* Sector Detail */}
-              <div className="bg-white border border-[rgba(0,0,0,0.07)] rounded-[12px] px-6 py-4 shadow-sm flex flex-col justify-between">
-                <span className="text-[11px] font-medium text-[#9B9B9B]">Sector & Size</span>
-                <div className="text-[18px] font-medium text-[#1A1A1A] py-1.5 truncate">
+              <div className="bg-white dark:bg-white/[0.02] border border-slate-200/60 dark:border-white/[0.06] rounded-[12px] px-6 py-4 shadow-sm dark:shadow-none flex flex-col justify-between">
+                <span className="text-[11px] font-medium text-slate-400 dark:text-slate-500">Sector & Size</span>
+                <div className="text-[18px] font-bold text-[#1A1A1A] dark:text-white py-1.5 truncate font-space-grotesk">
                   {result.sector}
                 </div>
-                <span className="text-[11px] text-[#6B6B6B] truncate">
+                <span className="text-[11px] text-slate-500 dark:text-slate-450 truncate">
                   {state?.companyData?.installedCapacity || (state?.companyData?.employees ? `${state.companyData.employees.toLocaleString()} employees` : "Comparable industry basis")}
                 </span>
               </div>
               
               {/* Data Source */}
-              <div className="bg-white border border-[rgba(0,0,0,0.07)] rounded-[12px] px-6 py-4 shadow-sm flex flex-col justify-between">
-                <span className="text-[11px] font-medium text-[#9B9B9B]">Data Source</span>
-                <div className="text-[18px] font-medium text-[#1A1A1A] py-1.5">
+              <div className="bg-white dark:bg-white/[0.02] border border-slate-200/60 dark:border-white/[0.06] rounded-[12px] px-6 py-4 shadow-sm dark:shadow-none flex flex-col justify-between">
+                <span className="text-[11px] font-medium text-slate-400 dark:text-slate-500">Data Source</span>
+                <div className="text-[18px] font-bold text-[#1A1A1A] dark:text-white py-1.5 font-space-grotesk">
                   {result.dataSource}
                 </div>
-                <span className="text-[11px] text-[#6B6B6B] capitalize">
+                <span className="text-[11px] text-slate-500 dark:text-slate-450 capitalize">
                   live · {result.analysisTimestamp.split(" ")[1] || "realtime"}
                 </span>
               </div>
@@ -693,13 +697,15 @@ export default function AnalyzePage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-[14px]">
               
               {/* Left Column: Why the model said INVEST/PASS */}
-              <div className="bg-white border border-[rgba(0,0,0,0.07)] rounded-[12px] px-6 py-5 shadow-sm space-y-4">
-                <h3 className="text-[13px] font-medium text-[#1A1A1A] border-b border-[rgba(0,0,0,0.05)] pb-2.5">
+              <div className="bg-white dark:bg-white/[0.02] border border-slate-200/60 dark:border-white/[0.06] rounded-[12px] px-6 py-5 shadow-sm dark:shadow-none space-y-4">
+                <h3 className="text-[13px] font-bold text-[#1A1A1A] dark:text-white border-b border-slate-150 dark:border-white/[0.04] pb-2.5 font-space-grotesk">
                   Why the model said {result.verdict === "INVEST" ? "INVEST" : "PASS"}
                 </h3>
                 
                 {/* Truncated thesis summary paragraph */}
-                <TruncatedText text={getSummaryParagraph(result)} maxLines={3} />
+                <div className="text-slate-600 dark:text-slate-400 text-xs">
+                  <TruncatedText text={getSummaryParagraph(result)} maxLines={3} />
+                </div>
                 
                 {/* Bullet drivers */}
                 <div className="space-y-3 pt-2">
@@ -708,11 +714,11 @@ export default function AnalyzePage() {
                     return (
                       <div key={idx} className="flex gap-2.5 items-start text-[13px]">
                         <span className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${
-                          isPositive ? "bg-[#639922]" : "bg-[#E24B4A]"
+                          isPositive ? "bg-emerald-500" : "bg-rose-500"
                         }`} />
                         <div className="leading-[1.65]">
-                          <strong className="font-semibold text-[#1A1A1A] mr-1">{driver.feature}:</strong>
-                          <span className="text-[#6B6B6B]">{driver.explanation}</span>
+                          <strong className="font-bold text-[#1A1A1A] dark:text-white mr-1 font-space-grotesk">{driver.feature}:</strong>
+                          <span className="text-slate-500 dark:text-slate-400">{driver.explanation}</span>
                         </div>
                       </div>
                     );
@@ -721,8 +727,8 @@ export default function AnalyzePage() {
               </div>
               
               {/* Right Column: Feature Importance Chart */}
-              <div className="bg-white border border-[rgba(0,0,0,0.07)] rounded-[12px] px-6 py-5 shadow-sm space-y-4">
-                <h3 className="text-[13px] font-medium text-[#1A1A1A] border-b border-[rgba(0,0,0,0.05)] pb-2.5">
+              <div className="bg-white dark:bg-white/[0.02] border border-slate-200/60 dark:border-white/[0.06] rounded-[12px] px-6 py-5 shadow-sm dark:shadow-none space-y-4">
+                <h3 className="text-[13px] font-bold text-[#1A1A1A] dark:text-white border-b border-slate-150 dark:border-white/[0.04] pb-2.5 font-space-grotesk">
                   Feature importance
                 </h3>
                 
@@ -738,15 +744,15 @@ export default function AnalyzePage() {
                       return (
                         <div key={idx} className="space-y-1">
                           <div className="flex justify-between text-[11px] font-medium">
-                            <span className="text-[#1A1A1A]">{driver.feature}</span>
-                            <span className={isPositive ? "text-[#3B6D11]" : "text-[#A32D2D]"}>
+                            <span className="text-[#1A1A1A] dark:text-white">{driver.feature}</span>
+                            <span className={isPositive ? "text-emerald-600 dark:text-emerald-400 font-bold" : "text-rose-600 dark:text-rose-400 font-bold"}>
                               {isPositive ? "+" : "-"}{(driver.impact * 10).toFixed(2)}
                             </span>
                           </div>
-                          <div className="h-2 w-full bg-[#F0F0EE] rounded-full overflow-hidden">
+                          <div className="h-2 w-full bg-slate-100 dark:bg-white/[0.08] rounded-full overflow-hidden">
                             <div 
                               className={`h-full rounded-full transition-all duration-1000 ${
-                                isPositive ? "bg-[#639922]" : "bg-[#E24B4A]"
+                                isPositive ? "bg-emerald-500" : "bg-rose-500"
                               }`}
                               style={{ width: `${pctWidth}%` }}
                             />
@@ -763,25 +769,41 @@ export default function AnalyzePage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-[14px]">
               {result.risks.map((risk, idx) => {
                 const colors = {
-                  high: { border: "border-t-[#E24B4A]", text: "text-[#A32D2D]", bg: "bg-[#FCEBEB]" },
-                  medium: { border: "border-t-amber-500", text: "text-[#633806]", bg: "bg-[#FAEEDA]" },
-                  low: { border: "border-t-[#639922]", text: "text-[#3B6D11]", bg: "bg-[#EAF3DE]" }
-                }[risk.level] || { border: "border-t-[#9B9B9B]", text: "text-[#6B6B6B]", bg: "bg-[#F0F0EE]" };
+                  high: { 
+                    border: "border-t-rose-500", 
+                    text: "text-rose-600 dark:text-rose-400", 
+                    bg: "bg-rose-500/10 border-rose-550/20" 
+                  },
+                  medium: { 
+                    border: "border-t-amber-500", 
+                    text: "text-amber-600 dark:text-amber-400", 
+                    bg: "bg-amber-500/10 border-amber-550/20" 
+                  },
+                  low: { 
+                    border: "border-t-emerald-500", 
+                    text: "text-emerald-600 dark:text-emerald-400", 
+                    bg: "bg-emerald-500/10 border-emerald-550/20" 
+                  }
+                }[risk.level] || { 
+                  border: "border-t-slate-400", 
+                  text: "text-slate-650 dark:text-slate-400", 
+                  bg: "bg-slate-100 dark:bg-white/5 border-slate-200" 
+                };
 
                 return (
                   <div 
                     key={idx} 
-                    className={`bg-white border border-[rgba(0,0,0,0.07)] border-t-[3px] ${colors.border} rounded-[12px] px-6 py-5 shadow-sm space-y-2 flex flex-col justify-between`}
+                    className={`bg-white dark:bg-white/[0.02] border border-slate-200/60 dark:border-white/[0.06] border-t-[3px] ${colors.border} rounded-[12px] px-6 py-5 shadow-sm dark:shadow-none space-y-2 flex flex-col justify-between`}
                   >
                     <div className="space-y-1">
-                      <span className={`text-[9px] font-bold tracking-wider uppercase px-2 py-0.5 rounded ${colors.text} ${colors.bg} w-fit block`}>
+                      <span className={`text-[9px] font-bold tracking-wider uppercase px-2 py-0.5 rounded border ${colors.text} ${colors.bg} w-fit block font-mono`}>
                         {risk.level} risk
                       </span>
-                      <h4 className="text-[13px] font-semibold text-[#1A1A1A] leading-snug pt-1">
+                      <h4 className="text-[13px] font-bold text-[#1A1A1A] dark:text-white leading-snug pt-1 font-space-grotesk">
                         {risk.title}
                       </h4>
                     </div>
-                    <p className="text-[12px] text-[#6B6B6B] leading-relaxed pt-2">
+                    <p className="text-[12px] text-slate-500 dark:text-slate-400 leading-relaxed pt-2">
                       {risk.description}
                     </p>
                   </div>
@@ -793,64 +815,64 @@ export default function AnalyzePage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-[14px]">
               
               {/* Left Column: Peer Comparison */}
-              <div className="bg-white border border-[rgba(0,0,0,0.07)] rounded-[12px] px-6 py-5 shadow-sm space-y-4">
-                <h3 className="text-[13px] font-medium text-[#1A1A1A] border-b border-[rgba(0,0,0,0.05)] pb-2.5">
+              <div className="bg-white dark:bg-white/[0.02] border border-slate-200/60 dark:border-white/[0.06] rounded-[12px] px-6 py-5 shadow-sm dark:shadow-none space-y-4">
+                <h3 className="text-[13px] font-bold text-[#1A1A1A] dark:text-white border-b border-slate-150 dark:border-white/[0.04] pb-2.5 font-space-grotesk">
                   Peer comparison
                 </h3>
                 
-                <div className="divide-y divide-[rgba(0,0,0,0.05)]">
+                <div className="divide-y divide-slate-150 dark:divide-white/[0.04]">
                   {result.peers.map((peer, idx) => (
                     <div 
                       key={idx} 
                       onClick={() => router.push(`/analyze/${peer.ticker}`)}
-                      className="flex justify-between items-center py-2.5 px-2 -mx-2 rounded-md cursor-pointer hover:bg-[#F9FAFB] active:bg-[#F3F4F6] transition-colors first:pt-2.5 last:pb-2.5 group"
+                      className="flex justify-between items-center py-2.5 px-2 -mx-2 rounded-md cursor-pointer hover:bg-slate-50 dark:hover:bg-white/[0.02] active:bg-slate-100 dark:active:bg-white/[0.04] transition-colors first:pt-2.5 last:pb-2.5 group"
                       title={`Analyze ${peer.name} (${peer.ticker})`}
                     >
                       <div>
-                        <div className="text-[13px] font-medium text-[#1A1A1A] group-hover:text-[#2563EB] transition-colors">{peer.name}</div>
-                        <div className="text-[10px] font-mono text-[#9B9B9B]">{peer.ticker}</div>
+                        <div className="text-[13px] font-bold text-[#1A1A1A] dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors font-space-grotesk">{peer.name}</div>
+                        <div className="text-[10px] font-mono text-slate-400">{peer.ticker}</div>
                       </div>
-                      <span className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                      <span className={`inline-block px-2.5 py-0.5 rounded text-[10px] font-bold font-space-grotesk ${
                         peer.verdict === "INVEST" 
-                          ? "bg-[#EAF3DE] text-[#3B6D11]" 
+                          ? "bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-450" 
                           : peer.verdict === "PASS"
-                          ? "bg-[#FCEBEB] text-[#A32D2D]"
-                          : "bg-[#FAEEDA] text-[#633806]"
+                          ? "bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-450"
+                          : "bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-455"
                       }`}>
                         {peer.verdict}
                       </span>
                     </div>
                   ))}
                   {result.peers.length === 0 && (
-                    <div className="text-xs text-[#6B6B6B] italic py-4">No sector peers available.</div>
+                    <div className="text-xs text-slate-500 dark:text-slate-400 italic py-4">No sector peers available.</div>
                   )}
                 </div>
               </div>
               
               {/* Right Column: Competitive Moat */}
-              <div className="bg-white border border-[rgba(0,0,0,0.07)] rounded-[12px] px-6 py-5 shadow-sm space-y-4">
-                <h3 className="text-[13px] font-medium text-[#1A1A1A] border-b border-[rgba(0,0,0,0.05)] pb-2.5">
+              <div className="bg-white dark:bg-white/[0.02] border border-slate-200/60 dark:border-white/[0.06] rounded-[12px] px-6 py-5 shadow-sm dark:shadow-none space-y-4">
+                <h3 className="text-[13px] font-bold text-[#1A1A1A] dark:text-white border-b border-slate-150 dark:border-white/[0.04] pb-2.5 font-space-grotesk">
                   Competitive moat
                 </h3>
                 
-                <p className="text-[13px] leading-[1.65] text-[#6B6B6B]">
+                <p className="text-[13px] leading-[1.65] text-slate-650 dark:text-slate-400">
                   {result.moat.summary}
                 </p>
                 
                 {/* 3 Color Coded Tags */}
                 <div className="flex flex-wrap gap-2 pt-2">
                   {result.moat.strengths[0] && (
-                    <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-semibold bg-[#EAF3DE] text-[#3B6D11]">
+                    <span className="inline-flex items-center px-2.5 py-1 rounded text-[10px] font-bold bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-450 font-space-grotesk">
                       {result.moat.strengths[0]}
                     </span>
                   )}
                   {result.moat.weaknesses[0] && (
-                    <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-semibold bg-[#FCEBEB] text-[#A32D2D]">
+                    <span className="inline-flex items-center px-2.5 py-1 rounded text-[10px] font-bold bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-450 font-space-grotesk">
                       {result.moat.weaknesses[0]}
                     </span>
                   )}
                   {result.moat.watchItems[0] && (
-                    <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-semibold bg-[#FAEEDA] text-[#633806]">
+                    <span className="inline-flex items-center px-2.5 py-1 rounded text-[10px] font-bold bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-455 font-space-grotesk">
                       {result.moat.watchItems[0]}
                     </span>
                   )}
@@ -859,7 +881,7 @@ export default function AnalyzePage() {
             </div>
 
             {/* SECTION 7 — FOOTER NOTE */}
-            <div className="text-center text-[11px] text-[#9B9B9B] py-6 border-t border-[rgba(0,0,0,0.05)]">
+            <div className="text-center text-[11px] text-slate-500 dark:text-slate-500 py-6 border-t border-slate-200/60 dark:border-white/[0.04]">
               Model: Two-Tower Transformer · 20M params · Trained on historical financial data · Not financial advice
             </div>
             

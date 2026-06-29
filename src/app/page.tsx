@@ -2,9 +2,8 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import SearchBar from "@/components/SearchBar";
+import HeroSection from "@/components/HeroSection";
 import RecentAnalyses, { CacheAnalysisItem } from "@/components/RecentAnalyses";
-import ResponsiveHeroBanner from "@/components/ui/responsive-hero-banner";
 import { Zap, ShieldCheck, Target } from "lucide-react";
 
 export default function Home() {
@@ -36,20 +35,11 @@ export default function Home() {
   };
 
   return (
-    <div className="flex-1 w-full bg-[#F8F8F6] text-[#1A1A1A]">
-      <ResponsiveHeroBanner
-        title="Investment Research"
-        titleLine2="AI Investment Analyst"
-        description="Autonomously inspect financial statement ratios, compute market sentiment metrics, map moat durability, and formulate actionable verdicts using a local custom neural network."
-        partners={[]}
-      >
-        <div id="search" className="mt-8 max-w-2xl mx-auto">
-          <SearchBar onSearch={handleSearch} isLoading={false} />
-        </div>
-      </ResponsiveHeroBanner>
+    <div className="flex-1 w-full bg-[#F8F8F6] dark:bg-[#0a0b0f] text-[#1A1A1A] dark:text-slate-100 flex flex-col justify-start transition-colors duration-300">
+      <HeroSection onSearch={handleSearch} isLoading={false} />
 
       {/* Main Content Area */}
-      <div className="max-w-6xl mx-auto px-6 py-16 space-y-20">
+      <div className="max-w-6xl w-full mx-auto px-6 py-16 space-y-20 relative z-10">
         {/* Core Capabilities Feature Grid */}
         <div id="features" className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-4">
           {[
@@ -57,39 +47,40 @@ export default function Home() {
               title: "On-device execution",
               desc: "Zero API fees. Runs local PyTorch neural network towers powered by Apple Silicon MPS.",
               icon: Zap,
-              color: "text-amber-600"
+              color: "text-amber-600 dark:text-amber-400"
             },
             {
               title: "Private document RAG",
               desc: "Upload local reports and PDFs. Split, embed, and query chunks locally on-the-fly.",
               icon: Target,
-              color: "text-violet-600"
+              color: "text-indigo-600 dark:text-indigo-400"
             },
             {
               title: "Auditable synthesis",
               desc: "Deep inspection of cross-attention weights and relative impact scores for complete transparency.",
               icon: ShieldCheck,
-              color: "text-emerald-600"
+              color: "text-emerald-600 dark:text-emerald-400"
             }
           ].map((feat, i) => {
             const Icon = feat.icon;
             return (
-              <div key={i} className="bg-white border border-[rgba(0,0,0,0.07)] rounded-[12px] p-8 space-y-4 shadow-sm">
-                <div className={`p-3 bg-[#F8F8F6] border border-[rgba(0,0,0,0.07)] rounded-xl w-fit ${feat.color}`}>
-                  <Icon className="w-6 h-6" />
+              <div key={i} className="bg-white dark:bg-white/[0.02] border border-slate-200/60 dark:border-white/[0.06] hover:border-slate-350 dark:hover:border-indigo-500/30 rounded-xl p-8 space-y-4 hover:bg-slate-50/50 dark:hover:bg-white/[0.04] transition duration-150 group shadow-sm dark:shadow-none">
+                <div className={`p-3 bg-slate-100 dark:bg-white/[0.04] border border-slate-200/60 dark:border-white/[0.06] rounded-xl w-fit ${feat.color}`}>
+                  <Icon className="w-5 h-5" />
                 </div>
-                <h3 className="text-lg font-medium text-[#1A1A1A]">{feat.title}</h3>
-                <p className="text-xs text-[#6B6B6B] leading-relaxed">{feat.desc}</p>
+                <h3 className="text-base font-bold text-[#1A1A1A] dark:text-white font-space-grotesk">{feat.title}</h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">{feat.desc}</p>
               </div>
             );
           })}
         </div>
 
         {/* History Log cache */}
-        <div className="border-t border-[rgba(0,0,0,0.07)] pt-16">
+        <div className="border-t border-slate-200/60 dark:border-white/[0.06] pt-16">
           <RecentAnalyses onSelect={handleHistorySelect} refreshTrigger={historyTrigger} />
         </div>
       </div>
     </div>
   );
 }
+
